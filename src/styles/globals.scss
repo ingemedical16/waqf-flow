@@ -1,0 +1,15 @@
+@use "./abstracts/variables";
+@use "./abstracts/breakpoints";
+@use "./abstracts/mixins";
+
+@use "./base/reset";
+@use "./base/typography";
+
+html {
+  font-size: 62.5%; // 1rem = 10px
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
