@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id                     String   @id @default(cuid())
+  name                   String
+  slug                   String   @unique
+  country                String
+  defaultLanguage        String   @default("en")
+
+  status                 TenantStatus @default(DRAFT)
+
+  stripeAccountId        String?  @unique
+  stripeChargesEnabled   Boolean  @default(false)
+  stripeDetailsSubmitted Boolean  @default(false)
+
+  isPubliclyActive       Boolean  @default(false)
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  devices                Device[]
+  donations              Donation[]
+}
+
+model Device {
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name            String
+  serialNumber    String   @unique
+  apiKeyHash      String
+
+  status          DeviceStatus @default(PENDING_REGISTRATION)
+
+  lastHeartbeatAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  donations       Donation[]   
+
+  @@index([tenantId])
+}
+
+model Donation {
+  id                    String   @id @default(cuid())
+  tenantId              String
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  deviceId              String?
+  device                Device?  @relation(fields: [deviceId], references: [id])
+
+  amount                Int
+  currency              String
+  stripePaymentIntentId String?
+
+  status                DonationStatus @default(PENDING)
+
+  createdAt             DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([deviceId])
+}
+
+enum TenantStatus {
+  DRAFT
+  PENDING_STRIPE
+  UNDER_REVIEW
+  ACTIVE
+  SUSPENDED
+  REJECTED
+  ARCHIVED
+}
+
+enum DeviceStatus {
+  PENDING_REGISTRATION
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  ARCHIVED
+}
+
+enum DonationStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
