@@ -1,0 +1,37 @@
+name: Branch Sync
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  sync:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Sync main -> staging
+        if: github.event.pull_request.base.ref == 'main'
+        run: |
+          git checkout staging
+          git pull origin staging
+          git merge origin/main --no-edit
+          git push origin staging
+
+      - name: Sync staging -> dev
+        if: github.event.pull_request.base.ref == 'staging'
+        run: |
+          git checkout dev
+          git pull origin dev
+          git merge origin/staging --no-edit
+          git push origin dev
