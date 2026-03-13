@@ -1,0 +1,35 @@
+name: Branch Flow Enforcement
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
+
+jobs:
+  validate-branch-flow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate branch direction
+        run: |
+          echo "Base: ${{ github.base_ref }}"
+          echo "Head: ${{ github.head_ref }}"
+
+          if [[ "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "staging" ]]; then
+            echo "❌ Only staging can merge into main"
+            exit 1
+          fi
+
+          if [[ "${{ github.base_ref }}" == "staging" && "${{ github.head_ref }}" != "dev" ]]; then
+            echo "❌ Only dev can merge into staging"
+            exit 1
+          fi
+
+          if [[ "${{ github.base_ref }}" == "dev" && "${{ github.head_ref }}" != feature/* ]]; then
+            echo "❌ Only feature/* branches can merge into dev"
+            exit 1
+          fi
+
+          echo "✅ Branch flow valid"
