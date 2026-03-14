@@ -92,3 +92,14 @@ enum DonationStatus {
   FAILED
   REFUNDED
 }
+
+model LaylatCounter {
+  id        String   @id @default(cuid())
+  mosque    String   @default("alihssani")
+  amount    Int
+  target    Int
+  updatedAt DateTime @updatedAt
+
+  @@index([mosque])
+}
+
