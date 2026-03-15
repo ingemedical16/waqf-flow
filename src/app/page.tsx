@@ -194,46 +194,49 @@ export default function LaylatDisplay() {
   /* ================= RENDER ================= */
 
   return (
-    <div className={styles.tvContainer}>
-      <div className={styles.topSection}>
-        <h1 className={styles.arabicTitle}>
-          ليلة القدر المباركة
-        </h1>
+  <div className={styles.tvContainer}>
+    <div className={styles.stars} />
+    <div className={styles.crescent} />
+
+    <div className={styles.topSection}>
+      <h1 className={styles.arabicTitle}>
+        ليلة القدر المباركة
+      </h1>
+    </div>
+
+    <div className={styles.middleSection}>
+      <div className={styles.message}>
+        <p className={styles.messageAr}>
+          {messages[currentMessage].arabic}
+        </p>
+        <p className={styles.messageFr}>
+          {messages[currentMessage].french}
+        </p>
       </div>
 
-      <div className={styles.middleSection}>
-        <div className={styles.message}>
-          <p className={styles.messageAr}>
-            {messages[currentMessage].arabic}
-          </p>
-          <p className={styles.messageFr}>
-            {messages[currentMessage].french}
-          </p>
-        </div>
-
-        <div className={styles.counter}>
-          {animatedValue.toLocaleString()} €
-        </div>
-      </div>
-
-      <div className={styles.bottomSection}>
-        <div className={styles.progressWrapper}>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-        </div>
-
-        <div className={styles.target}>
-          Objectif : {target.toLocaleString()} €
-        </div>
-
-        <div className={styles.mosque}>
-          Mosquée Al Ihssani
-        </div>
+      <div className={styles.counter}>
+        {animatedValue.toLocaleString()} €
       </div>
     </div>
-  );
+
+    <div className={styles.bottomSection}>
+      <div className={styles.progressWrapper}>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+
+      <div className={styles.target}>
+        Objectif : {target.toLocaleString()} €
+      </div>
+
+      <div className={styles.mosque}>
+        Mosquée Al Ihssani
+      </div>
+    </div>
+  </div>
+);
 }

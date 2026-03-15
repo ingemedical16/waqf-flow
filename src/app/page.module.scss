@@ -1,72 +1,55 @@
-/* ======================================================
-   TV CONTAINER
-====================================================== */
+/* ================= TV ROOT ================= */
 
 .tvContainer {
-  position: relative;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
+  height: 100vh;
   width: 100vw;
   overflow: hidden;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
   padding: 3vh 5vw;
   box-sizing: border-box;
+
   background: radial-gradient(circle at center, #0f3d2e 0%, #07251b 100%);
   color: white;
-  font-family: "Segoe UI", sans-serif;
 }
 
-/* ======================================================
-   ISLAMIC OVERLAY
-====================================================== */
-
-.overlayPattern {
-  position: absolute;
-  inset: 0;
-  background-image: url("/islamic-pattern.png"); // optional if you add one
-  background-size: cover;
-  opacity: 0.05;
-  pointer-events: none;
-}
-
-/* ======================================================
-   SECTIONS LAYOUT
-====================================================== */
+/* ================= SECTIONS ================= */
 
 .topSection {
+  flex: 0 0 auto;
   text-align: center;
 }
 
 .middleSection {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2.5vh;
+  gap: 2vh;
   text-align: center;
 }
 
 .bottomSection {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.5vh;
 }
 
-/* ======================================================
-   TITLE
-====================================================== */
+/* ================= TITLE ================= */
 
 .arabicTitle {
   font-size: clamp(2rem, 4vw, 5rem);
   color: #ffd76a;
   text-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
-  font-weight: 600;
 }
 
-/* ======================================================
-   MESSAGE
-====================================================== */
+/* ================= MESSAGE ================= */
 
 .message {
   display: flex;
@@ -87,28 +70,23 @@
   opacity: 0.9;
 }
 
-/* ======================================================
-   COUNTER
-====================================================== */
+/* ================= COUNTER ================= */
 
 .counter {
   font-size: clamp(3rem, 6vw, 8rem);
   font-weight: 700;
   color: #ffffff;
   text-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-  transition: all 0.3s ease;
 }
 
-/* ======================================================
-   PROGRESS BAR
-====================================================== */
+/* ================= PROGRESS ================= */
 
 .progressWrapper {
   width: 100%;
 }
 
 .progressBar {
-  height: 2.8vh;
+  height: 2.5vh;
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 50px;
@@ -127,31 +105,24 @@
   box-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
 }
 
-/* ======================================================
-   FOOTER
-====================================================== */
+/* ================= FOOTER ================= */
 
 .target {
   font-size: clamp(1rem, 1.5vw, 2rem);
-  color: #e6e6e6;
   text-align: center;
 }
 
 .mosque {
   font-size: clamp(1rem, 1.3vw, 1.8rem);
-  color: #cccccc;
   text-align: center;
   opacity: 0.8;
 }
 
-/* ======================================================
-   STAR BACKGROUND ANIMATION
-====================================================== */
+/* ================= STAR BACKGROUND ================= */
 
 .stars {
   position: absolute;
   inset: 0;
-  background: transparent;
   pointer-events: none;
 }
 
@@ -161,7 +132,7 @@
   inset: 0;
   background-image: radial-gradient(white 1px, transparent 1px);
   background-size: 3px 3px;
-  opacity: 0.08;
+  opacity: 0.05;
   animation: moveStars 60s linear infinite;
 }
 
@@ -174,31 +145,15 @@
   }
 }
 
-/* ======================================================
-   CRESCENT
-====================================================== */
+/* ================= CRESCENT ================= */
 
 .crescent {
   position: absolute;
-  top: 5vh;
-  right: 5vw;
+  top: 4vh;
+  right: 4vw;
   width: 60px;
   height: 60px;
   border-radius: 50%;
   box-shadow: 20px 0 0 0 #ffd76a;
   opacity: 0.6;
-}
-
-/* ======================================================
-   TV SAFETY
-====================================================== */
-
-@media (max-height: 700px) {
-  .middleSection {
-    gap: 1.5vh;
-  }
-
-  .progressBar {
-    height: 2vh;
-  }
 }

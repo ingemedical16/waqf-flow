@@ -1,4 +1,4 @@
-import "./globals.css";
+import "./globals.scss";
 import { Amiri } from "next/font/google";
 
 const amiri = Amiri({
@@ -10,7 +10,10 @@ const amiri = Amiri({
 export const metadata = {
   title: "WaqfFlow",
   description: "Mosque Donation Platform",
+  viewport:
+    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
+
 
 export default function RootLayout({
   children,
