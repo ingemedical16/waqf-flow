@@ -175,16 +175,3 @@
   font-size: 3rem;
   line-height: 1.8;
 }
-.fullscreenOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  color: gold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  z-index: 9999;
-  cursor: pointer;
-  letter-spacing: 2px;
-}
