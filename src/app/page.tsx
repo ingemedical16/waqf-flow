@@ -1,66 +1,300 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useEffect, useState, useRef, useCallback } from "react";
+import styles from "./laylat-display.module.scss";
+
+/* =============================
+   CONFIG
+============================= */
+
+const DONATIONS = [10, 20, 50, 100, 200, 500];
+
+// Adjust to mosque Fajr
+const FAJR_HOUR = 5;
+const FAJR_MINUTE = 15;
+
+/* =============================
+   HELPERS
+============================= */
+
+function randomDonation() {
+  return DONATIONS[Math.floor(Math.random() * DONATIONS.length)];
+}
+
+// 🔴 DEBUG SPEED (change later)
+function randomDelay() {
+  return 2000 + Math.random() * 3000; // 2–5 sec
+}
+
+/* =============================
+   COMPONENT
+============================= */
+
+export default function LaylatDisplay() {
+  const [realAmount, setRealAmount] = useState(0);
+  const [displayed, setDisplayed] = useState(0);
+  const [animatedValue, setAnimatedValue] = useState(0);
+  const [target, setTarget] = useState(0);
+  const [initialized, setInitialized] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState(0);
+
+  const simulateTimeout = useRef<NodeJS.Timeout | null>(null);
+  const animationFrame = useRef<number | null>(null);
+
+  /* =============================
+     SPIRITUAL MESSAGES
+  ============================= */
+
+  const messages = [
+    {
+      arabic:
+        "«من بنى لله مسجداً يبتغي به وجه الله بنى الله له مثله في الجنة»",
+      french:
+        "Celui qui construit une mosquée pour Allah, Allah lui construit l’équivalent au Paradis.",
+    },
+    {
+      arabic:
+        "«من قام ليلة القدر إيماناً واحتساباً غُفر له ما تقدم من ذنبه»",
+      french:
+        "Celui qui veille la Nuit du Destin avec foi et espérance verra ses péchés pardonnés.",
+    },
+    {
+      arabic:
+        "اللهم اجعل صدقاتهم نوراً لهم في قبورهم وبركةً في أرزاقهم وسبباً في رفع درجاتهم وبناءً لهم في الجنة",
+      french:
+        "Ô Allah, fais de leurs dons une lumière dans leurs tombes, une bénédiction dans leurs biens et une demeure au Paradis.",
+    },
+  ];
+
+  /* =============================
+     ROTATE MESSAGES
+  ============================= */
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % messages.length);
+    }, 20000);
+
+    return () => clearInterval(interval);
+  }, [messages.length]);
+
+  /* =============================
+     FETCH REAL DATA
+  ============================= */
+
+  const fetchLatest = useCallback(async () => {
+    try {
+      const res = await fetch("/api/alihssani/laylat/get", {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      console.log("API REAL:", data.amount);
+
+      if (typeof data.amount === "number") {
+        setRealAmount(data.amount);
+        setTarget(data.target);
+
+        if (!initialized) {
+          const saved = localStorage.getItem("alihssani_displayed");
+
+          if (saved) {
+            const value = parseInt(saved);
+            setDisplayed(value);
+            setAnimatedValue(value);
+          } else {
+            setDisplayed(data.amount);
+            setAnimatedValue(data.amount);
+            localStorage.setItem(
+              "alihssani_displayed",
+              data.amount.toString()
+            );
+          }
+
+          setInitialized(true);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [initialized]);
+
+  useEffect(() => {
+    fetchLatest();
+  }, [fetchLatest]);
+
+  // 🔴 Poll every 30s for testing
+  useEffect(() => {
+    const interval = setInterval(fetchLatest, 30000);
+    return () => clearInterval(interval);
+  }, [fetchLatest]);
+
+  /* =============================
+     SIMULATOR (GUARANTEED WORKING)
+  ============================= */
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    const simulate = () => {
+      setDisplayed((prev) => {
+        if (prev >= realAmount) {
+          return prev;
+        }
+
+        const next = prev + randomDonation();
+        const final = next > realAmount ? realAmount : next;
+
+        console.log("SIMULATE →", final);
+
+        localStorage.setItem(
+          "alihssani_displayed",
+          final.toString()
+        );
+
+        return final;
+      });
+
+      simulateTimeout.current = setTimeout(
+        simulate,
+        randomDelay()
+      );
+    };
+
+    simulateTimeout.current = setTimeout(
+      simulate,
+      randomDelay()
+    );
+
+    return () => {
+      if (simulateTimeout.current) {
+        clearTimeout(simulateTimeout.current);
+      }
+    };
+  }, [realAmount, initialized]);
+
+  /* =============================
+     FAJR SYNC
+  ============================= */
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const fajr = new Date();
+
+      fajr.setHours(FAJR_HOUR);
+      fajr.setMinutes(FAJR_MINUTE);
+      fajr.setSeconds(0);
+
+      if (now >= fajr) {
+        setDisplayed(realAmount);
+        setAnimatedValue(realAmount);
+
+        localStorage.setItem(
+          "alihssani_displayed",
+          realAmount.toString()
+        );
+
+        if (simulateTimeout.current) {
+          clearTimeout(simulateTimeout.current);
+        }
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [realAmount]);
+
+  /* =============================
+     SMOOTH ANIMATION
+  ============================= */
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    if (animationFrame.current) {
+      cancelAnimationFrame(animationFrame.current);
+    }
+
+    const start = animatedValue;
+    const end = displayed;
+    const duration = 600;
+    let startTime: number | null = null;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+      const percent = Math.min(progress / duration, 1);
+
+      const easeOut = 1 - Math.pow(1 - percent, 3);
+      const value = Math.floor(start + (end - start) * easeOut);
+
+      setAnimatedValue(value);
+
+      if (percent < 1) {
+        animationFrame.current =
+          requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame.current =
+      requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, [displayed, initialized]);
+
+  /* =============================
+     RENDER
+  ============================= */
+
+  const percent =
+    target > 0
+      ? Math.min((animatedValue / target) * 100, 100)
+      : 0;
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.tvContainer}>
+      <div className={styles.overlayPattern} />
+      <div className={styles.stars} />
+      <div className={styles.crescent} />
+
+      <h1 className={styles.arabicTitle}>
+        ليلة القدر المباركة
+      </h1>
+
+      <div className={styles.message}>
+        <p className={styles.messageAr}>
+          {messages[currentMessage].arabic}
+        </p>
+        <p className={styles.messageFr}>
+          {messages[currentMessage].french}
+        </p>
+      </div>
+
+      <div className={styles.counter}>
+        {animatedValue.toLocaleString()} €
+      </div>
+
+      <div className={styles.progressWrapper}>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${percent}%` }}
+          />
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      <div className={styles.target}>
+        Objectif : {target.toLocaleString()} €
+      </div>
+
+      <div className={styles.mosque}>
+        Mosquée Al Ihssani
+      </div>
     </div>
   );
 }
