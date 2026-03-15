@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import styles from "./laylat-display.module.scss";
+import styles from "./page.module.scss";
 
 /* =============================
    CONFIG
