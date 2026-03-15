@@ -3,32 +3,17 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import styles from "./laylat-display.module.scss";
 
-/* =============================
-   CONFIG
-============================= */
-
 const DONATIONS = [10, 20, 50, 100, 200, 500];
-
-// Adjust to mosque Fajr
 const FAJR_HOUR = 5;
 const FAJR_MINUTE = 15;
-
-/* =============================
-   HELPERS
-============================= */
 
 function randomDonation() {
   return DONATIONS[Math.floor(Math.random() * DONATIONS.length)];
 }
 
-// 🔴 DEBUG SPEED (change later)
 function randomDelay() {
-  return 2000 + Math.random() * 3000; // 2–5 sec
+  return 120000 + Math.random() * 780000; // 2–15 minutes
 }
-
-/* =============================
-   COMPONENT
-============================= */
 
 export default function LaylatDisplay() {
   const [realAmount, setRealAmount] = useState(0);
@@ -40,10 +25,6 @@ export default function LaylatDisplay() {
 
   const simulateTimeout = useRef<NodeJS.Timeout | null>(null);
   const animationFrame = useRef<number | null>(null);
-
-  /* =============================
-     SPIRITUAL MESSAGES
-  ============================= */
 
   const messages = [
     {
@@ -66,57 +47,37 @@ export default function LaylatDisplay() {
     },
   ];
 
-  /* =============================
-     ROTATE MESSAGES
-  ============================= */
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMessage((prev) => (prev + 1) % messages.length);
-    }, 20000);
-
-    return () => clearInterval(interval);
-  }, [messages.length]);
-
-  /* =============================
-     FETCH REAL DATA
-  ============================= */
+  /* ================= FETCH ================= */
 
   const fetchLatest = useCallback(async () => {
-    try {
-      const res = await fetch("/api/alihssani/laylat/get", {
-        cache: "no-store",
-      });
+    const res = await fetch("/api/alihssani/laylat/get", {
+      cache: "no-store",
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      console.log("API REAL:", data.amount);
+    if (typeof data.amount === "number") {
+      setRealAmount(data.amount);
+      setTarget(data.target);
 
-      if (typeof data.amount === "number") {
-        setRealAmount(data.amount);
-        setTarget(data.target);
+      if (!initialized) {
+        const saved = localStorage.getItem("alihssani_displayed");
 
-        if (!initialized) {
-          const saved = localStorage.getItem("alihssani_displayed");
-
-          if (saved) {
-            const value = parseInt(saved);
-            setDisplayed(value);
-            setAnimatedValue(value);
-          } else {
-            setDisplayed(data.amount);
-            setAnimatedValue(data.amount);
-            localStorage.setItem(
-              "alihssani_displayed",
-              data.amount.toString()
-            );
-          }
-
-          setInitialized(true);
+        if (saved) {
+          const value = parseInt(saved);
+          setDisplayed(value);
+          setAnimatedValue(value);
+        } else {
+          setDisplayed(data.amount);
+          setAnimatedValue(data.amount);
+          localStorage.setItem(
+            "alihssani_displayed",
+            data.amount.toString()
+          );
         }
+
+        setInitialized(true);
       }
-    } catch (err) {
-      console.error(err);
     }
   }, [initialized]);
 
@@ -124,29 +85,22 @@ export default function LaylatDisplay() {
     fetchLatest();
   }, [fetchLatest]);
 
-  // 🔴 Poll every 30s for testing
   useEffect(() => {
-    const interval = setInterval(fetchLatest, 30000);
+    const interval = setInterval(fetchLatest, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchLatest]);
 
-  /* =============================
-     SIMULATOR (GUARANTEED WORKING)
-  ============================= */
+  /* ================= SIMULATOR ================= */
 
   useEffect(() => {
     if (!initialized) return;
 
     const simulate = () => {
       setDisplayed((prev) => {
-        if (prev >= realAmount) {
-          return prev;
-        }
+        if (prev >= realAmount) return prev;
 
         const next = prev + randomDonation();
         const final = next > realAmount ? realAmount : next;
-
-        console.log("SIMULATE →", final);
 
         localStorage.setItem(
           "alihssani_displayed",
@@ -156,27 +110,17 @@ export default function LaylatDisplay() {
         return final;
       });
 
-      simulateTimeout.current = setTimeout(
-        simulate,
-        randomDelay()
-      );
+      simulateTimeout.current = setTimeout(simulate, randomDelay());
     };
 
-    simulateTimeout.current = setTimeout(
-      simulate,
-      randomDelay()
-    );
+    simulateTimeout.current = setTimeout(simulate, randomDelay());
 
     return () => {
-      if (simulateTimeout.current) {
-        clearTimeout(simulateTimeout.current);
-      }
+      if (simulateTimeout.current) clearTimeout(simulateTimeout.current);
     };
   }, [realAmount, initialized]);
 
-  /* =============================
-     FAJR SYNC
-  ============================= */
+  /* ================= FAJR SYNC ================= */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -190,24 +134,13 @@ export default function LaylatDisplay() {
       if (now >= fajr) {
         setDisplayed(realAmount);
         setAnimatedValue(realAmount);
-
-        localStorage.setItem(
-          "alihssani_displayed",
-          realAmount.toString()
-        );
-
-        if (simulateTimeout.current) {
-          clearTimeout(simulateTimeout.current);
-        }
       }
     }, 60000);
 
     return () => clearInterval(interval);
   }, [realAmount]);
 
-  /* =============================
-     SMOOTH ANIMATION
-  ============================= */
+  /* ================= SMOOTH ANIMATION ================= */
 
   useEffect(() => {
     if (!initialized) return;
@@ -218,82 +151,88 @@ export default function LaylatDisplay() {
 
     const start = animatedValue;
     const end = displayed;
-    const duration = 600;
+    const duration = 800;
     let startTime: number | null = null;
 
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
+
       const progress = timestamp - startTime;
       const percent = Math.min(progress / duration, 1);
-
       const easeOut = 1 - Math.pow(1 - percent, 3);
+
       const value = Math.floor(start + (end - start) * easeOut);
 
       setAnimatedValue(value);
 
       if (percent < 1) {
-        animationFrame.current =
-          requestAnimationFrame(animate);
+        animationFrame.current = requestAnimationFrame(animate);
       }
     };
 
-    animationFrame.current =
-      requestAnimationFrame(animate);
+    animationFrame.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationFrame.current) {
+      if (animationFrame.current)
         cancelAnimationFrame(animationFrame.current);
-      }
     };
   }, [displayed, initialized]);
 
-  /* =============================
-     RENDER
-  ============================= */
+  /* ================= ROTATE MESSAGES ================= */
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % messages.length);
+    }, 20000);
+
+    return () => clearInterval(interval);
+  }, [messages.length]);
 
   const percent =
-    target > 0
-      ? Math.min((animatedValue / target) * 100, 100)
-      : 0;
+    target > 0 ? Math.min((animatedValue / target) * 100, 100) : 0;
+
+  /* ================= RENDER ================= */
 
   return (
     <div className={styles.tvContainer}>
-      <div className={styles.overlayPattern} />
-      <div className={styles.stars} />
-      <div className={styles.crescent} />
-
-      <h1 className={styles.arabicTitle}>
-        ليلة القدر المباركة
-      </h1>
-
-      <div className={styles.message}>
-        <p className={styles.messageAr}>
-          {messages[currentMessage].arabic}
-        </p>
-        <p className={styles.messageFr}>
-          {messages[currentMessage].french}
-        </p>
+      <div className={styles.topSection}>
+        <h1 className={styles.arabicTitle}>
+          ليلة القدر المباركة
+        </h1>
       </div>
 
-      <div className={styles.counter}>
-        {animatedValue.toLocaleString()} €
-      </div>
+      <div className={styles.middleSection}>
+        <div className={styles.message}>
+          <p className={styles.messageAr}>
+            {messages[currentMessage].arabic}
+          </p>
+          <p className={styles.messageFr}>
+            {messages[currentMessage].french}
+          </p>
+        </div>
 
-      <div className={styles.progressWrapper}>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${percent}%` }}
-          />
+        <div className={styles.counter}>
+          {animatedValue.toLocaleString()} €
         </div>
       </div>
 
-      <div className={styles.target}>
-        Objectif : {target.toLocaleString()} €
-      </div>
+      <div className={styles.bottomSection}>
+        <div className={styles.progressWrapper}>
+          <div className={styles.progressBar}>
+            <div
+              className={styles.progressFill}
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+        </div>
 
-      <div className={styles.mosque}>
-        Mosquée Al Ihssani
+        <div className={styles.target}>
+          Objectif : {target.toLocaleString()} €
+        </div>
+
+        <div className={styles.mosque}>
+          Mosquée Al Ihssani
+        </div>
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export default function LaylatDisplay() {
     },
   ];
 
-  /* ---------------- FETCH ---------------- */
+  /* ================= FETCH ================= */
 
   const fetchLatest = useCallback(async () => {
     const res = await fetch("/api/alihssani/laylat/get", {
@@ -90,7 +90,7 @@ export default function LaylatDisplay() {
     return () => clearInterval(interval);
   }, [fetchLatest]);
 
-  /* ---------------- SIMULATOR ---------------- */
+  /* ================= SIMULATOR ================= */
 
   useEffect(() => {
     if (!initialized) return;
@@ -120,7 +120,7 @@ export default function LaylatDisplay() {
     };
   }, [realAmount, initialized]);
 
-  /* ---------------- FAJR SYNC ---------------- */
+  /* ================= FAJR SYNC ================= */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -140,7 +140,7 @@ export default function LaylatDisplay() {
     return () => clearInterval(interval);
   }, [realAmount]);
 
-  /* ---------------- SMOOTH ANIMATION ---------------- */
+  /* ================= SMOOTH ANIMATION ================= */
 
   useEffect(() => {
     if (!initialized) return;
@@ -178,7 +178,7 @@ export default function LaylatDisplay() {
     };
   }, [displayed, initialized]);
 
-  /* ---------------- ROTATE MESSAGES ---------------- */
+  /* ================= ROTATE MESSAGES ================= */
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -191,40 +191,48 @@ export default function LaylatDisplay() {
   const percent =
     target > 0 ? Math.min((animatedValue / target) * 100, 100) : 0;
 
+  /* ================= RENDER ================= */
+
   return (
     <div className={styles.tvContainer}>
-      <h1 className={styles.arabicTitle}>
-        ليلة القدر المباركة
-      </h1>
-
-      <div className={styles.message}>
-        <p className={styles.messageAr}>
-          {messages[currentMessage].arabic}
-        </p>
-        <p className={styles.messageFr}>
-          {messages[currentMessage].french}
-        </p>
+      <div className={styles.topSection}>
+        <h1 className={styles.arabicTitle}>
+          ليلة القدر المباركة
+        </h1>
       </div>
 
-      <div className={styles.counter}>
-        {animatedValue.toLocaleString()} €
-      </div>
+      <div className={styles.middleSection}>
+        <div className={styles.message}>
+          <p className={styles.messageAr}>
+            {messages[currentMessage].arabic}
+          </p>
+          <p className={styles.messageFr}>
+            {messages[currentMessage].french}
+          </p>
+        </div>
 
-      <div className={styles.progressWrapper}>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${percent}%` }}
-          />
+        <div className={styles.counter}>
+          {animatedValue.toLocaleString()} €
         </div>
       </div>
 
-      <div className={styles.target}>
-        Objectif : {target.toLocaleString()} €
-      </div>
+      <div className={styles.bottomSection}>
+        <div className={styles.progressWrapper}>
+          <div className={styles.progressBar}>
+            <div
+              className={styles.progressFill}
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+        </div>
 
-      <div className={styles.mosque}>
-        Mosquée Al Ihssani
+        <div className={styles.target}>
+          Objectif : {target.toLocaleString()} €
+        </div>
+
+        <div className={styles.mosque}>
+          Mosquée Al Ihssani
+        </div>
       </div>
     </div>
   );

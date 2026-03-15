@@ -1,190 +1,204 @@
+/* ======================================================
+   TV CONTAINER
+====================================================== */
+
 .tvContainer {
   position: relative;
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #064e3b, #021f1a);
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: space-between;
+  padding: 3vh 5vw;
+  box-sizing: border-box;
+  background: radial-gradient(circle at center, #0f3d2e 0%, #07251b 100%);
   color: white;
-  padding: 4rem;
-  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
 }
 
-/* Stars animation */
-.stars {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(white 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: 0.06;
-  animation: starsMove 80s linear infinite;
-}
+/* ======================================================
+   ISLAMIC OVERLAY
+====================================================== */
 
-@keyframes starsMove {
-  from { transform: translateY(0); }
-  to { transform: translateY(-200px); }
-}
-
-/* Crescent moon */
-.crescent {
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle at 30% 30%, #facc15, #eab308);
-  border-radius: 50%;
-  box-shadow: 0 0 40px #facc15;
-}
-
-.crescent::after {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 40px;
-  width: 110px;
-  height: 110px;
-  background: #064e3b;
-  border-radius: 50%;
-}
-
-/* Title */
-.arabicTitle {
-  font-size: 5rem;
-  color: #facc15;
-  text-shadow: 0 0 30px rgba(250,204,21,0.9);
-  margin-bottom: 2rem;
-}
-
-/* Message block */
-.message {
-  max-width: 1100px;
-  margin-bottom: 3rem;
-  min-height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.messageContent {
-  animation: smoothFade 1.5s ease;
-}
-
-@keyframes smoothFade {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.messageAr {
-  font-size: 2.5rem;
-  color: #facc15;
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  text-shadow: 0 0 20px rgba(250,204,21,0.8);
-  min-height: 120px;
-}
-
-.messageFr {
-  font-size: 1.6rem;
-  color: #bbf7d0;
-  min-height: 60px;
-}
-
-/* Counter */
-.counter {
-  font-size: 8rem;
-  font-weight: bold;
-  color: #fef9c3;
-  text-shadow: 0 0 50px rgba(250,204,21,1);
-  margin-bottom: 3rem;
-  animation: pulse 2.5s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-  100% { transform: scale(1); }
-}
-
-/* Progress bar */
-.progressWrapper {
-  width: 75%;
-}
-
-.progressBar {
-  height: 90px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 60px;
-  overflow: hidden;
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
-}
-
-.progressFill {
-  height: 100%;
-  background: linear-gradient(90deg, #facc15, #22c55e);
-  box-shadow: 0 0 40px #facc15;
-  transition: width 1s ease;
-}
-
-.target {
-  font-size: 2rem;
-  color: #bbf7d0;
-  margin-top: 1.5rem;
-}
-
-.mosque {
-  position: absolute;
-  bottom: 2rem;
-  font-size: 1.5rem;
-  opacity: 0.6;
-}
 .overlayPattern {
   position: absolute;
   inset: 0;
-  background-image: url("https://www.transparenttextures.com/patterns/arabesque.png");
+  background-image: url("/islamic-pattern.png"); // optional if you add one
+  background-size: cover;
   opacity: 0.05;
   pointer-events: none;
 }
 
-.sparkle {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(255,215,0,0.8) 0%, transparent 60%);
-  animation: sparkleAnim 2s infinite;
-  pointer-events: none;
+/* ======================================================
+   SECTIONS LAYOUT
+====================================================== */
+
+.topSection {
+  text-align: center;
 }
 
-@keyframes sparkleAnim {
-  0% { opacity: 0; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(1.4); }
+.middleSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2.5vh;
+  text-align: center;
 }
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+}
+
+/* ======================================================
+   TITLE
+====================================================== */
 
 .arabicTitle {
-  font-family: var(--font-arabic);
-  font-size: 6rem;
-  color: #facc15;
-  text-shadow: 0 0 40px rgba(250,204,21,1);
-  margin-bottom: 2rem;
+  font-size: clamp(2rem, 4vw, 5rem);
+  color: #ffd76a;
+  text-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
+  font-weight: 600;
+}
+
+/* ======================================================
+   MESSAGE
+====================================================== */
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
 }
 
 .messageAr {
-  font-family: var(--font-arabic);
-  font-size: 3rem;
-  line-height: 1.8;
+  font-size: clamp(1.2rem, 2.2vw, 3rem);
+  color: #ffd76a;
+  direction: rtl;
+  line-height: 1.4;
 }
-.fullscreenOverlay {
-  position: fixed;
+
+.messageFr {
+  font-size: clamp(1rem, 1.8vw, 2rem);
+  color: #e6e6e6;
+  opacity: 0.9;
+}
+
+/* ======================================================
+   COUNTER
+====================================================== */
+
+.counter {
+  font-size: clamp(3rem, 6vw, 8rem);
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+/* ======================================================
+   PROGRESS BAR
+====================================================== */
+
+.progressWrapper {
+  width: 100%;
+}
+
+.progressBar {
+  height: 2.8vh;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #ffd76a 0%,
+    #f1c40f 40%,
+    #2ecc71 100%
+  );
+  transition: width 1s ease-in-out;
+  box-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.target {
+  font-size: clamp(1rem, 1.5vw, 2rem);
+  color: #e6e6e6;
+  text-align: center;
+}
+
+.mosque {
+  font-size: clamp(1rem, 1.3vw, 1.8rem);
+  color: #cccccc;
+  text-align: center;
+  opacity: 0.8;
+}
+
+/* ======================================================
+   STAR BACKGROUND ANIMATION
+====================================================== */
+
+.stars {
+  position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  color: gold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  z-index: 9999;
-  cursor: pointer;
-  letter-spacing: 2px;
+  background: transparent;
+  pointer-events: none;
+}
+
+.stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(white 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.08;
+  animation: moveStars 60s linear infinite;
+}
+
+@keyframes moveStars {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
+  }
+}
+
+/* ======================================================
+   CRESCENT
+====================================================== */
+
+.crescent {
+  position: absolute;
+  top: 5vh;
+  right: 5vw;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  box-shadow: 20px 0 0 0 #ffd76a;
+  opacity: 0.6;
+}
+
+/* ======================================================
+   TV SAFETY
+====================================================== */
+
+@media (max-height: 700px) {
+  .middleSection {
+    gap: 1.5vh;
+  }
+
+  .progressBar {
+    height: 2vh;
+  }
 }
