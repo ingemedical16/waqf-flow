@@ -6,8 +6,15 @@ export async function GET() {
     where: { mosque: "alihssani" },
   });
 
+  if (!counter) {
+    return NextResponse.json(
+      { error: "Counter not found" },
+      { status: 404 }
+    );
+  }
+
   return NextResponse.json({
-    amount: counter?.amount ?? 141500,
-    target: counter?.target ?? 301400,
+    amount: counter.amount ?? 145500,
+    target: counter.target ?? 301400,
   });
 }

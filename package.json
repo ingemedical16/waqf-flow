@@ -16,7 +16,8 @@
     "pg": "^8.20.0",
     "prisma": "^7.5.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "sass": "^1.98.0"
   },
   "devDependencies": {
     "@types/node": "^20",

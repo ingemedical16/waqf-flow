@@ -1,43 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LaylatAdmin() {
-  const [amount, setAmount] = useState("");
-  const [target, setTarget] = useState("");
+  const [amount, setAmount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const update = async () => {
+  useEffect(() => {
+    fetch("/api/alihssani/laylat/get")
+      .then(res => res.json())
+      .then(data => setAmount(data.amount));
+  }, []);
+
+  const updateAmount = async () => {
+    if (amount === null) return;
+
+    setLoading(true);
+    setSuccess(false);
+
     await fetch("/api/alihssani/laylat/update", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: Number(amount),
-        target: Number(target),
-      }),
+      body: JSON.stringify({ amount }),
     });
 
-    alert("Updated");
+    setLoading(false);
+    setSuccess(true);
   };
 
   return (
-    <div style={{ padding: "4rem" }}>
-      <h1>Admin – Laylat Counter</h1>
+    <div style={{
+      minHeight: "100vh",
+      background: "#0f172a",
+      color: "white",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "2rem"
+    }}>
+      <h1 style={{ fontSize: "2rem" }}>
+        Laylat Al Qadr – Admin
+      </h1>
 
-      <input
-        type="number"
-        placeholder="Collected amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
+      {amount !== null && (
+        <>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            style={{
+              fontSize: "2rem",
+              padding: "1rem",
+              width: "300px",
+              textAlign: "center"
+            }}
+          />
 
-      <input
-        type="number"
-        placeholder="Target"
-        value={target}
-        onChange={(e) => setTarget(e.target.value)}
-      />
+          <button
+            onClick={updateAmount}
+            disabled={loading}
+            style={{
+              padding: "1rem 2rem",
+              fontSize: "1.2rem",
+              background: "#22c55e",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer"
+            }}
+          >
+            {loading ? "Updating..." : "Update Amount"}
+          </button>
 
-      <button onClick={update}>Update</button>
+          {success && (
+            <p style={{ color: "#22c55e" }}>
+              Updated successfully
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }
