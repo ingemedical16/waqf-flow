@@ -1,32 +1,32 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./page.module.scss";
 
 const DONATIONS = [10, 20, 50, 100, 200, 500];
 
-const FAJR_HOUR = 5;
-const FAJR_MINUTE = 15;
+const INITIAL_DISPLAY = 141500;
+const INITIAL_TARGET = 301400;
 
 function randomDonation() {
   return DONATIONS[Math.floor(Math.random() * DONATIONS.length)];
 }
 
 function randomDelay() {
-  return 120000 + Math.random() * 780000; // 2–15 minutes
+  return 120000 + Math.random() * 780000; // 2–15 min
 }
 
 export default function LaylatDisplay() {
-  const [realAmount, setRealAmount] = useState(145500);
-  const [displayed, setDisplayed] = useState(141500);
-  const [animatedValue, setAnimatedValue] = useState(0);
-  const [target, setTarget] = useState(301400);
+  const [realAmount, setRealAmount] = useState<number>(INITIAL_DISPLAY);
+  const [displayed, setDisplayed] = useState<number>(INITIAL_DISPLAY);
+  const [animatedValue, setAnimatedValue] = useState<number>(INITIAL_DISPLAY);
+  const [target, setTarget] = useState<number>(INITIAL_TARGET);
   const [currentMessage, setCurrentMessage] = useState(0);
 
   const simulateTimeout = useRef<NodeJS.Timeout | null>(null);
   const animationFrame = useRef<number | null>(null);
 
-  /* ================= SPIRITUAL MESSAGES ================= */
+  /* ================= MESSAGES ================= */
 
   const messages = [
     {
@@ -51,46 +51,34 @@ export default function LaylatDisplay() {
 
   /* ================= FETCH REAL DATA ================= */
 
-  const fetchLatest = useCallback(async () => {
-    try {
-      const res = await fetch("/api/alihssani/laylat/get", {
-        cache: "no-store",
-      });
-
-      const data = await res.json();
-
-      if (typeof data.amount === "number") {
-        setRealAmount(data.amount);
-        setTarget(data.target);
-
-        // If first load → sync immediately
-        setDisplayed((prev) => {
-          if (prev === 0) {
-            setAnimatedValue(data.amount);
-            return data.amount;
-          }
-          return prev;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/alihssani/laylat/get", {
+          cache: "no-store",
         });
+
+        const data = await res.json();
+
+        if (typeof data.amount === "number") {
+          setRealAmount(data.amount);
+          setTarget(data.target);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
       }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    fetchLatest();
-  }, [fetchLatest]);
-
-  // Poll every 5 minutes
-  useEffect(() => {
-    const interval = setInterval(fetchLatest, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [fetchLatest]);
-
-  /* ================= SIMULATOR ================= */
+  /* ================= SIMULATION ================= */
 
   useEffect(() => {
-    if (realAmount <= displayed) return;
+    if (displayed >= realAmount) return;
 
     const simulate = () => {
       setDisplayed((prev) => {
@@ -117,32 +105,11 @@ export default function LaylatDisplay() {
     };
   }, [realAmount]);
 
-  /* ================= FAJR SYNC ================= */
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const fajr = new Date();
-
-      fajr.setHours(FAJR_HOUR);
-      fajr.setMinutes(FAJR_MINUTE);
-      fajr.setSeconds(0);
-
-      if (now >= fajr) {
-        setDisplayed(realAmount);
-        setAnimatedValue(realAmount);
-      }
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [realAmount]);
-
   /* ================= SMOOTH COUNTER ================= */
 
   useEffect(() => {
-    if (animationFrame.current) {
+    if (animationFrame.current)
       cancelAnimationFrame(animationFrame.current);
-    }
 
     const start = animatedValue;
     const end = displayed;
@@ -154,10 +121,9 @@ export default function LaylatDisplay() {
 
       const progress = timestamp - startTime;
       const percent = Math.min(progress / duration, 1);
-
       const easeOut = 1 - Math.pow(1 - percent, 3);
-      const value = Math.floor(start + (end - start) * easeOut);
 
+      const value = Math.floor(start + (end - start) * easeOut);
       setAnimatedValue(value);
 
       if (percent < 1) {
@@ -181,12 +147,9 @@ export default function LaylatDisplay() {
     }, 20000);
 
     return () => clearInterval(interval);
-  }, [messages.length]);
+  }, []);
 
-  const percent =
-    target > 0
-      ? Math.min((animatedValue / target) * 100, 100)
-      : 0;
+  const percent = Math.min((animatedValue / target) * 100, 100);
 
   /* ================= RENDER ================= */
 
