@@ -9,7 +9,7 @@ import styles from "./laylat-display.module.scss";
 
 const DONATIONS = [10, 20, 50, 100, 200, 500];
 
-// Adjust to mosque Fajr
+// Mosque Fajr time
 const FAJR_HOUR = 5;
 const FAJR_MINUTE = 15;
 
@@ -21,9 +21,9 @@ function randomDonation() {
   return DONATIONS[Math.floor(Math.random() * DONATIONS.length)];
 }
 
-// 🔴 DEBUG SPEED (change later)
+// Production delay: 2–15 minutes
 function randomDelay() {
-  return 2000 + Math.random() * 3000; // 2–5 sec
+  return 120000 + Math.random() * 780000;
 }
 
 /* =============================
@@ -37,9 +37,52 @@ export default function LaylatDisplay() {
   const [target, setTarget] = useState(0);
   const [initialized, setInitialized] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const simulateTimeout = useRef<NodeJS.Timeout | null>(null);
   const animationFrame = useRef<number | null>(null);
+
+  /* =============================
+     FULLSCREEN TV MODE
+  ============================= */
+
+  const enterFullscreen = () => {
+    const element: any = document.documentElement;
+
+    if (!document.fullscreenElement) {
+      const request =
+        element.requestFullscreen ||
+        element.webkitRequestFullscreen ||
+        element.msRequestFullscreen;
+
+      if (request) {
+        request.call(element).then?.(() => {
+          setIsFullscreen(true);
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Try once automatically
+    enterFullscreen();
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener(
+      "fullscreenchange",
+      handleFullscreenChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreenChange
+      );
+    };
+  }, []);
 
   /* =============================
      SPIRITUAL MESSAGES
@@ -84,20 +127,22 @@ export default function LaylatDisplay() {
 
   const fetchLatest = useCallback(async () => {
     try {
-      const res = await fetch("/api/alihssani/laylat/get", {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        "/api/alihssani/laylat/get",
+        { cache: "no-store" }
+      );
 
       const data = await res.json();
-
-      console.log("API REAL:", data.amount);
 
       if (typeof data.amount === "number") {
         setRealAmount(data.amount);
         setTarget(data.target);
 
         if (!initialized) {
-          const saved = localStorage.getItem("alihssani_displayed");
+          const saved =
+            localStorage.getItem(
+              "alihssani_displayed"
+            );
 
           if (saved) {
             const value = parseInt(saved);
@@ -124,14 +169,17 @@ export default function LaylatDisplay() {
     fetchLatest();
   }, [fetchLatest]);
 
-  // 🔴 Poll every 30s for testing
+  // Poll every 5 minutes
   useEffect(() => {
-    const interval = setInterval(fetchLatest, 30000);
+    const interval = setInterval(
+      fetchLatest,
+      5 * 60 * 1000
+    );
     return () => clearInterval(interval);
   }, [fetchLatest]);
 
   /* =============================
-     SIMULATOR (GUARANTEED WORKING)
+     SIMULATOR
   ============================= */
 
   useEffect(() => {
@@ -144,9 +192,10 @@ export default function LaylatDisplay() {
         }
 
         const next = prev + randomDonation();
-        const final = next > realAmount ? realAmount : next;
-
-        console.log("SIMULATE →", final);
+        const final =
+          next > realAmount
+            ? realAmount
+            : next;
 
         localStorage.setItem(
           "alihssani_displayed",
@@ -156,16 +205,12 @@ export default function LaylatDisplay() {
         return final;
       });
 
-      simulateTimeout.current = setTimeout(
-        simulate,
-        randomDelay()
-      );
+      simulateTimeout.current =
+        setTimeout(simulate, randomDelay());
     };
 
-    simulateTimeout.current = setTimeout(
-      simulate,
-      randomDelay()
-    );
+    simulateTimeout.current =
+      setTimeout(simulate, randomDelay());
 
     return () => {
       if (simulateTimeout.current) {
@@ -206,34 +251,50 @@ export default function LaylatDisplay() {
   }, [realAmount]);
 
   /* =============================
-     SMOOTH ANIMATION
+     SMOOTH COUNTER
   ============================= */
 
   useEffect(() => {
     if (!initialized) return;
 
     if (animationFrame.current) {
-      cancelAnimationFrame(animationFrame.current);
+      cancelAnimationFrame(
+        animationFrame.current
+      );
     }
 
     const start = animatedValue;
     const end = displayed;
-    const duration = 600;
+    const duration = 800;
     let startTime: number | null = null;
 
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = timestamp - startTime;
-      const percent = Math.min(progress / duration, 1);
+    const animate = (
+      timestamp: number
+    ) => {
+      if (!startTime)
+        startTime = timestamp;
 
-      const easeOut = 1 - Math.pow(1 - percent, 3);
-      const value = Math.floor(start + (end - start) * easeOut);
+      const progress =
+        timestamp - startTime;
+      const percent = Math.min(
+        progress / duration,
+        1
+      );
+
+      const easeOut =
+        1 - Math.pow(1 - percent, 3);
+
+      const value = Math.floor(
+        start + (end - start) * easeOut
+      );
 
       setAnimatedValue(value);
 
       if (percent < 1) {
         animationFrame.current =
-          requestAnimationFrame(animate);
+          requestAnimationFrame(
+            animate
+          );
       }
     };
 
@@ -242,7 +303,9 @@ export default function LaylatDisplay() {
 
     return () => {
       if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
+        cancelAnimationFrame(
+          animationFrame.current
+        );
       }
     };
   }, [displayed, initialized]);
@@ -253,12 +316,34 @@ export default function LaylatDisplay() {
 
   const percent =
     target > 0
-      ? Math.min((animatedValue / target) * 100, 100)
+      ? Math.min(
+          (animatedValue / target) * 100,
+          100
+        )
       : 0;
 
   return (
-    <div className={styles.tvContainer}>
-      <div className={styles.overlayPattern} />
+    <div
+      className={styles.tvContainer}
+      onClick={
+        !isFullscreen
+          ? enterFullscreen
+          : undefined
+      }
+    >
+      {!isFullscreen && (
+        <div
+          className={
+            styles.fullscreenOverlay
+          }
+        >
+          Tap to start TV mode
+        </div>
+      )}
+
+      <div
+        className={styles.overlayPattern}
+      />
       <div className={styles.stars} />
       <div className={styles.crescent} />
 
@@ -267,11 +352,27 @@ export default function LaylatDisplay() {
       </h1>
 
       <div className={styles.message}>
-        <p className={styles.messageAr}>
-          {messages[currentMessage].arabic}
+        <p
+          className={
+            styles.messageAr
+          }
+        >
+          {
+            messages[
+              currentMessage
+            ].arabic
+          }
         </p>
-        <p className={styles.messageFr}>
-          {messages[currentMessage].french}
+        <p
+          className={
+            styles.messageFr
+          }
+        >
+          {
+            messages[
+              currentMessage
+            ].french
+          }
         </p>
       </div>
 
@@ -279,17 +380,30 @@ export default function LaylatDisplay() {
         {animatedValue.toLocaleString()} €
       </div>
 
-      <div className={styles.progressWrapper}>
-        <div className={styles.progressBar}>
+      <div
+        className={
+          styles.progressWrapper
+        }
+      >
+        <div
+          className={
+            styles.progressBar
+          }
+        >
           <div
-            className={styles.progressFill}
-            style={{ width: `${percent}%` }}
+            className={
+              styles.progressFill
+            }
+            style={{
+              width: `${percent}%`,
+            }}
           />
         </div>
       </div>
 
       <div className={styles.target}>
-        Objectif : {target.toLocaleString()} €
+        Objectif :{" "}
+        {target.toLocaleString()} €
       </div>
 
       <div className={styles.mosque}>
