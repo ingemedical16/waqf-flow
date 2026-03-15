@@ -13,20 +13,19 @@ function randomDonation() {
 }
 
 function randomDelay() {
-  return 120000 + Math.random() * 780000; // 2–15 min
+  return 120000 + Math.random() * 780000; // 2–15 minutes
 }
 
 export default function LaylatDisplay() {
-  const [realAmount, setRealAmount] = useState<number>(INITIAL_DISPLAY);
+  const [realAmount, setRealAmount] = useState<number>(INITIAL_DISPLAY + 2000);
   const [displayed, setDisplayed] = useState<number>(INITIAL_DISPLAY);
   const [animatedValue, setAnimatedValue] = useState<number>(INITIAL_DISPLAY);
   const [target, setTarget] = useState<number>(INITIAL_TARGET);
   const [currentMessage, setCurrentMessage] = useState(0);
 
-  const simulateTimeout = useRef<NodeJS.Timeout | null>(null);
   const animationFrame = useRef<number | null>(null);
 
-  /* ================= MESSAGES ================= */
+  /* ================= SPIRITUAL MESSAGES ================= */
 
   const messages = [
     {
@@ -75,41 +74,36 @@ export default function LaylatDisplay() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ================= SIMULATION ================= */
+/* ================= SIMULATION ENGINE (STABLE) ================= */
+
+useEffect(() => {
+  if (realAmount <= displayed) return;
+
+  const interval = setInterval(() => {
+    setDisplayed(prev => {
+      if (prev >= realAmount) {
+        clearInterval(interval);
+        return realAmount;
+      }
+
+      const next = prev + randomDonation();
+      return next > realAmount ? realAmount : next;
+    });
+  }, 5000); // every 5 seconds (for testing)
+
+  return () => clearInterval(interval);
+
+}, [realAmount]);
+useEffect(() => {
+  console.log("REAL:", realAmount);
+  console.log("DISPLAYED:", displayed);
+}, [realAmount, displayed]);
+  /* ================= SMOOTH ANIMATION ================= */
 
   useEffect(() => {
-    if (displayed >= realAmount) return;
-
-    const simulate = () => {
-      setDisplayed((prev) => {
-        if (prev >= realAmount) return realAmount;
-
-        const next = prev + randomDonation();
-        return next > realAmount ? realAmount : next;
-      });
-
-      simulateTimeout.current = setTimeout(
-        simulate,
-        randomDelay()
-      );
-    };
-
-    simulateTimeout.current = setTimeout(
-      simulate,
-      randomDelay()
-    );
-
-    return () => {
-      if (simulateTimeout.current)
-        clearTimeout(simulateTimeout.current);
-    };
-  }, [realAmount]);
-
-  /* ================= SMOOTH COUNTER ================= */
-
-  useEffect(() => {
-    if (animationFrame.current)
+    if (animationFrame.current) {
       cancelAnimationFrame(animationFrame.current);
+    }
 
     const start = animatedValue;
     const end = displayed;

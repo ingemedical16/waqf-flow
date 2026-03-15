@@ -1,11 +1,4 @@
 import "./globals.scss";
-import { Amiri } from "next/font/google";
-
-const amiri = Amiri({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  variable: "--font-arabic",
-});
 
 export const metadata = {
   title: "WaqfFlow",
@@ -22,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar">
-      <body className={amiri.variable}>
+      <body >
         {children}
       </body>
     </html>
