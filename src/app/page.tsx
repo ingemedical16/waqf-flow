@@ -154,7 +154,10 @@ useEffect(() => {
 
       <div className={styles.topSection}>
         <h1 className={styles.arabicTitle}>
-          ليلة القدر المباركة
+ليلة الختام… فاختم لنا بالقبول        
+</h1>
+        <h1 className={styles.frenchTitle}>
+          La nuit de clôture… Accorde-nous Ton agrément
         </h1>
       </div>
 

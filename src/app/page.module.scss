@@ -48,6 +48,11 @@
   color: #ffd76a;
   text-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
 }
+.frenchTitle {
+  font-size: clamp(1.5rem, 3vw, 4rem);
+  color: #e6e6e6;
+  opacity: 0.9;
+}
 
 /* ================= MESSAGE ================= */
 
