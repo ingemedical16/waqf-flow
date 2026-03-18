@@ -5,7 +5,7 @@ import styles from "./page.module.scss";
 
 const DONATIONS = [10, 20, 50, 100, 200, 500];
 
-const INITIAL_DISPLAY = 141500;
+const INITIAL_DISPLAY = 162887;
 const INITIAL_TARGET = 301400;
 
 function randomDonation() {
