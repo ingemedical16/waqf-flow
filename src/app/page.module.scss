@@ -1,164 +1,104 @@
-/* ================= TV ROOT ================= */
-
-.tvContainer {
-  position: fixed;
-  inset: 0;
+.container {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-
+  position: relative;
+  background: radial-gradient(circle at center, #0f3d2e 0%, #071a14 100%);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  padding: 3vh 5vw;
-  box-sizing: border-box;
-
-  background: radial-gradient(circle at center, #0f3d2e 0%, #07251b 100%);
-  color: white;
-}
-
-/* ================= SECTIONS ================= */
-
-.topSection {
-  flex: 0 0 auto;
-  text-align: center;
-}
-
-.middleSection {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 2vh;
   text-align: center;
 }
 
-.bottomSection {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5vh;
-}
-
-/* ================= TITLE ================= */
-
-.arabicTitle {
-  font-size: clamp(2rem, 4vw, 5rem);
-  color: #ffd76a;
-  text-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
-}
-.frenchTitle {
-  font-size: clamp(1.5rem, 3vw, 4rem);
-  color: #e6e6e6;
-  opacity: 0.9;
-}
-
-/* ================= MESSAGE ================= */
-
-.message {
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
-}
-
-.messageAr {
-  font-size: clamp(1.2rem, 2.2vw, 3rem);
-  color: #ffd76a;
-  direction: rtl;
-  line-height: 1.4;
-}
-
-.messageFr {
-  font-size: clamp(1rem, 1.8vw, 2rem);
-  color: #e6e6e6;
-  opacity: 0.9;
-}
-
-/* ================= COUNTER ================= */
-
-.counter {
-  font-size: clamp(3rem, 6vw, 8rem);
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-}
-
-/* ================= PROGRESS ================= */
-
-.progressWrapper {
-  width: 100%;
-}
-
-.progressBar {
-  height: 2.5vh;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #ffd76a 0%,
-    #f1c40f 40%,
-    #2ecc71 100%
-  );
-  transition: width 1s ease-in-out;
-  box-shadow: 0 0 15px rgba(255, 215, 106, 0.6);
-}
-
-/* ================= FOOTER ================= */
-
-.target {
-  font-size: clamp(1rem, 1.5vw, 2rem);
-  text-align: center;
-}
-
-.mosque {
-  font-size: clamp(1rem, 1.3vw, 1.8rem);
-  text-align: center;
-  opacity: 0.8;
-}
-
-/* ================= STAR BACKGROUND ================= */
-
+/* ===== Animated Stars ===== */
 .stars {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.stars::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(white 1px, transparent 1px);
-  background-size: 3px 3px;
-  opacity: 0.05;
+  width: 200%;
+  height: 200%;
+  background: url("https://www.transparenttextures.com/patterns/stardust.png");
   animation: moveStars 60s linear infinite;
+  opacity: 0.15;
 }
 
 @keyframes moveStars {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-200px);
-  }
+  from { transform: translateY(0); }
+  to { transform: translateY(-500px); }
 }
 
-/* ================= CRESCENT ================= */
-
-.crescent {
+/* ===== Mosque Silhouette ===== */
+.mosque {
   position: absolute;
-  top: 4vh;
-  right: 4vw;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  box-shadow: 20px 0 0 0 #ffd76a;
-  opacity: 0.6;
+  bottom: 0;
+  width: 100%;
+  height: 35%;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+/* ===== Content ===== */
+.content {
+  z-index: 2;
+  padding: 4vh;
+}
+
+.title {
+  font-size: clamp(40px, 5vw, 90px);
+  color: #f6d365;
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255, 200, 100, 0.9);
+  margin-bottom: 3vh;
+}
+
+.arabic {
+  font-size: clamp(28px, 3vw, 55px);
+  color: #ffffff;
+  line-height: 1.8;
+  margin-bottom: 4vh;
+  text-shadow: 0 0 12px rgba(255,255,255,0.4);
+}
+
+/* ===== Countdown Section ===== */
+.countdown {
+  font-size: clamp(24px, 2vw, 40px);
+  color: #f6d365;
+  margin-top: 2vh;
+}
+
+.timer {
+  font-size: clamp(60px, 7vw, 150px);
+  font-weight: bold;
+  margin-top: 1vh;
+  color: #ffd700;
+  text-shadow:
+    0 0 20px rgba(255,215,0,0.9),
+    0 0 40px rgba(255,200,0,0.8),
+    0 0 60px rgba(255,180,0,0.6);
+}
+
+/* ===== Prayer Mode ===== */
+.prayerNow {
+  font-size: clamp(60px, 6vw, 140px);
+  font-weight: bold;
+  color: #ffd700;
+  animation: pulse 2s infinite;
+  text-shadow: 0 0 40px rgba(255,215,0,1);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.after {
+  font-size: clamp(40px, 4vw, 90px);
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255,255,255,0.6);
+}
+.phonetic {
+  font-size: clamp(22px, 2.5vw, 45px);
+  color: #f6d365;
+  margin-top: 2vh;
+  line-height: 1.8;
+  font-style: italic;
+  text-shadow: 0 0 12px rgba(255, 200, 100, 0.7);
 }
